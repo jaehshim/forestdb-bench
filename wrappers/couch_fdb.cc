@@ -90,7 +90,9 @@ couchstore_error_t couchstore_open_db(const char *filename,
 
 // lexicographically compares two variable-length binary streams
 #define MIN(a,b) (((a)<(b))?(a):(b))
-static int _bench_keycmp(void *key1, size_t keylen1, void *key2, size_t keylen2)
+static int _bench_keycmp(void *key1, size_t keylen1,
+                         void *key2, size_t keylen2,
+                         void *user_param)
 {
     if (keylen1 == keylen2) {
         return memcmp(key1, key2, keylen1);
@@ -164,8 +166,9 @@ couchstore_error_t couchstore_open_db_ex(const char *filename,
         char *kvs_names[] = {(char*)"default"};
         fdb_custom_cmp_variable functions[] = {_bench_keycmp};
         config.multi_kv_instances = true;
+        void *params[1] = {NULL};
         status = fdb_open_custom_cmp(&dbfile, fname, &config,
-                                     1, kvs_names, functions);
+                                     1, kvs_names, functions, params);
     } else {
         status = fdb_open(&dbfile, fname, &config);
     }
