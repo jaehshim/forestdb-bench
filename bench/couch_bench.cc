@@ -1818,6 +1818,11 @@ void do_bench(struct bench_info *binfo)
 #endif
     }
 
+	if (binfo->nops == 0 && binfo->bench_secs == 0) {
+		lprintf("Skip benchmark\n");
+		return;
+	}
+
     // ==== perform benchmark ====
     lprintf("\nbenchmark\n");
     lprintf("opening DB instance .. ");
@@ -2893,9 +2898,9 @@ struct bench_info get_benchinfo(char* bench_config_filename)
     binfo.nops = iniparser_getint(cfg, (char*)"operation:nops", 0);
     binfo.warmup_secs = iniparser_getint(cfg, (char*)"operation:warmingup", 0);
     binfo.bench_secs = iniparser_getint(cfg, (char*)"operation:duration", 0);
-    if (binfo.nbatches == 0 && binfo.nops == 0 && binfo.bench_secs == 0) {
-        binfo.bench_secs = 60;
-    }
+//    if (binfo.nbatches == 0 && binfo.nops == 0 && binfo.bench_secs == 0) {
+//        binfo.bench_secs = 60;
+//    }
 
     size_t avg_write_batchsize;
     str = iniparser_getstring(cfg, (char*)"operation:batchsize_distribution",
