@@ -256,6 +256,12 @@ void _create_doc(struct bench_info *binfo,
     // add NULL character at the end.
     doc->id.buf[doc->id.size] = 0;
 
+//	lprintf("key: ");
+//	for (int k = 0; k<doc->id.size; k++) {
+//		lprintf("%02x ", (unsigned char)doc->id.buf[k]);
+//	}
+//	lprintf("\n");
+
     BDR_RNG_NEXTPAIR;
     r = get_random(&binfo->bodylen, rngz, rngz2);
     if (r < 8) r = 8;
