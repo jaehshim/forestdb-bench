@@ -125,7 +125,7 @@ struct bench_info {
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 static uint32_t rnd_seed;
-static int print_term_ms = 100;
+static int print_term_ms = 1000;
 static int filesize_chk_term = 4;
 
 FILE *log_fp = NULL;
@@ -3036,6 +3036,7 @@ int main(int argc, char **argv){
 
     randomize();
     rnd_seed = rand();
+	rnd_seed = 821189795;
 
     strcpy(config_filename,"bench_config.ini");
 
