@@ -5,16 +5,16 @@ DEV="nvme0n1"
 
 ndocs=$1
 nops=$2
-duration=180
+duration=0
 
 klen=$3
 vlen=$4
 
 cache_size=$5
 bloom_bits=$6
-batch_dist="uniform"
 
 ratio=$7
+batch_dist=$8
 
 function print_param() {
 	echo "ndocs, nops:" $ndocs $nops
@@ -42,7 +42,9 @@ function do_init() {
 	echo "mount" $DEV $MNT
 	sudo mkfs.ext4 -F /dev/$DEV || exit
 	sudo mount /dev/$DEV $MNT || exit
-	sudo chown csl:csl $MNT || exit
+	sudo chown $USER:$USER $MNT || exit
+
+	sleep 60
 }
 
 print_param
@@ -50,4 +52,4 @@ print_param
 do_init
 
 python3 gen_bench_config.py $ndocs $nops $duration $klen $vlen $cache_size $bloom_bits $ratio $batch_dist < config.ini > my.ini
-sudo LD_LIBRARY_PATH=/home/csl/testbed/rocksdb ./rocksdb_bench -f my.ini
+sudo LD_LIBRARY_PATH=/home/$USER/testbed/rocksdb ./rocksdb_bench -f my.ini

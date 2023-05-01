@@ -32,12 +32,12 @@ function do_init() {
 	echo "mount" $DEV $MNT
 	sudo mkfs.ext4 -F /dev/$DEV || exit
 	sudo mount /dev/$DEV $MNT || exit
-	sudo chown csl:csl $MNT || exit
+	sudo chown $USER:$USER $MNT || exit
 }
 
 do_init
 
 python3 gen_bench_config.py $ndocs $nops $duration $klen $vlen $cache_size $bloom_bits $ratio $batch_dist < config.ini > my.ini
 
-sudo LD_LIBRARY_PATH=/home/csl/testbed/rocksdb ./rocksdb_bench -f my.ini
-#sudo LD_LIBRARY_PATH=/home/csl/testbed/wiredtiger/build ./wt_bench -f my.ini
+sudo LD_LIBRARY_PATH=/home/$USER/testbed/rocksdb ./rocksdb_bench -f my.ini
+#sudo LD_LIBRARY_PATH=/home/$USER/testbed/wiredtiger/build ./wt_bench -f my.ini

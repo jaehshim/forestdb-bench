@@ -1,35 +1,40 @@
 #!/bin/bash
 
 npop=10000000
-nops=10000000
+nops=2000000
 
-klen=16
-vlen=4080
+klen=100
+vlen=4096
 sum=`expr $klen + $vlen`
 
 cache_size=10240 # MB
 bloom_bits=10
 
-write_ratio=0
+#write_ratio=0
+write_ratio=(50 5 0)
 
-for((i=1; i<=2; i++))
+distribution=("uniform" "zipfian")
+
+
+for((i=0; i<=1; i++))
 do
-	sudo rm logs/*
-
-	dir="bloom_bits_"$bloom_bits
-	mkdir $dir
-
-	for((klen=16; klen<=1024; klen*=4))
+	for((j=0; j<=2; j++))
 	do
-		vlen=`expr $sum - $klen`
-		./param_eval.sh $npop $nops $klen $vlen $cache_size $bloom_bits $write_ratio
-		sleep 300
+		sudo rm logs/*
+		
+		OP=${write_ratio[$j]}
+		DIST=${distribution[$i]}
+		echo $OP $DIST
+	
+		dir=$DIST"_"$OP"-rocksdb"
+		mkdir $dir
+	
+		./param_eval.sh $npop $nops $klen $vlen $cache_size $bloom_bits $OP $DIST
+		sleep 120
+	
+		sudo cp logs/* $dir
 	done
-	sudo cp logs/* $dir
-
-	bloom_bits=`expr $bloom_bits + 10`
 done
 
 source ~/pushover.sh
 push_to_mobile "linux_notification" "driver $dir done! $HOSTNAME @ $(date)"
-exit
