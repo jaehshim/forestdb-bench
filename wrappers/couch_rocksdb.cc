@@ -385,26 +385,28 @@ couchstore_error_t couchstore_walk_id_tree(Db *db,
 
     rit->Seek(startkey);
 
-    while (rit->Valid()) {
-        keyptr = rit->key();
-        valueptr = rit->value();
+	if (callback(db, 0, &doc_info, 0, NULL, ctx) != 2) {
+	    while (rit->Valid()) {
+	        keyptr = rit->key();
+	        valueptr = rit->value();
 
-        doc_info.id.buf = (char *)malloc(keyptr.size());
-        memcpy(doc_info.id.buf, keyptr.data(), keyptr.size());
-        doc.data.buf = (char *)malloc(valueptr.size());
-        memcpy(doc.data.buf, valueptr.data(), valueptr.size());
+	        doc_info.id.buf = (char *)malloc(keyptr.size());
+	        memcpy(doc_info.id.buf, keyptr.data(), keyptr.size());
+	        doc.data.buf = (char *)malloc(valueptr.size());
+	        memcpy(doc.data.buf, valueptr.data(), valueptr.size());
 
-        c_ret = callback(db, 0, &doc_info, 0, NULL, ctx);
+	        c_ret = callback(db, 0, &doc_info, 0, NULL, ctx);
 
-        free(doc_info.id.buf);
-        free(doc.data.buf);
+	        free(doc_info.id.buf);
+	        free(doc.data.buf);
 
-        if (c_ret != 0) {
-            break;
-        }
+	        if (c_ret != 0) {
+	            break;
+	        }
 
-        rit->Next();
-    }
+	        rit->Next();
+	    }
+	}
 
     delete rit;
 

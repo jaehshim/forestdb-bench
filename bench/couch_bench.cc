@@ -930,6 +930,11 @@ int iterate_callback(Db *db,
                      void *ctx)
 {
     struct iterate_args *args = (struct iterate_args *)ctx;
+
+	if (args->batchsize == 0) {
+		return 2;
+	}
+
     if (doc_info) {
         args->counter++;
 #if defined(__COUCH_BENCH)
@@ -1138,8 +1143,12 @@ void * bench_thread(void *voidargs)
                 if (batchsize <= 0) batchsize = 1;
             } else {
                 // iterator
-                batchsize = get_random(&binfo->ibatchsize, rngz, rngz2);
-                if (batchsize <= 0) batchsize = 1;
+				if (binfo->ibatchsize.a == 0 && binfo->ibatchsize.b == 0)
+					batchsize = 0; // intended for seek only
+				else {
+					batchsize = get_random(&binfo->ibatchsize, rngz, rngz2);
+					if (batchsize <= 0) batchsize = 1;
+				}
             }
         }
 

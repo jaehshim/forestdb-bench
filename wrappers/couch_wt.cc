@@ -356,28 +356,32 @@ couchstore_error_t couchstore_walk_id_tree(Db *db,
     ret = db->cursor->search(db->cursor);
     assert(ret == 0);
 
-    const char *key, *value;
-    do {
-        db->cursor->get_key(db->cursor, &key);
-        doc_info.id.size = strlen(key);
-        doc_info.id.buf = (char *)malloc(doc_info.id.size + 1);
-        strcpy(doc_info.id.buf, key);
+	if (callback(db, 0, &doc_info, 0, NULL, ctx) != 2) {
+	    const char *key, *value;
+	    do {
+	        db->cursor->get_key(db->cursor, &key);
+	        doc_info.id.size = strlen(key);
+	        doc_info.id.buf = (char *)malloc(doc_info.id.size + 1);
+	        strcpy(doc_info.id.buf, key);
 
-        db->cursor->get_value(db->cursor, &value);
-        doc.data.size = strlen(value);
-        doc.data.buf = (char *)malloc(doc.data.size + 1);
-        strcpy(doc.data.buf, value);
+	        db->cursor->get_value(db->cursor, &value);
+	        doc.data.size = strlen(value);
+	        doc.data.buf = (char *)malloc(doc.data.size + 1);
+	        strcpy(doc.data.buf, value);
 
-        c_ret = callback(db, 0, &doc_info, 0, NULL, ctx);
+	        c_ret = callback(db, 0, &doc_info, 0, NULL, ctx);
 
-        free(doc_info.id.buf);
-        free(doc.data.buf);
+	        free(doc_info.id.buf);
+	        free(doc.data.buf);
 
-        if (c_ret != 0) {
-            break;
-        }
+	        if (c_ret != 0) {
+	            break;
+	        }
 
-    } while ((ret = db->cursor->next(db->cursor)) == 0);
+	    } while ((ret = db->cursor->next(db->cursor)) == 0);
+	}
+	else 
+		printf("skip next\n");
 
     return COUCHSTORE_SUCCESS;
 }
