@@ -47,6 +47,7 @@ int64_t DATABUF_MAXLEN = 0;
 
 struct bench_info {
     uint8_t initialize;  // flag for initialization
+    uint8_t append_db;  // flag for population append
     uint64_t cache_size; // buffer cache size (for fdb, rdb, ldb)
     int auto_compaction; // compaction mode
 
@@ -1717,7 +1718,7 @@ void do_bench(struct bench_info *binfo)
         // === initialize and populate files ========
 
         // check if previous file exists
-        if (_dir_scan(binfo, NULL)) {
+        if (! binfo->append_db && _dir_scan(binfo, NULL)) {
             // ask user
             char answer[64], *ret;
             memset(answer, 0x0, sizeof(answer));
@@ -1735,9 +1736,13 @@ void do_bench(struct bench_info *binfo)
         }
 
         // erase previous db file
-        lprintf("\ninitialize\n");
-        sprintf(cmd, "rm -rf %s* 2> errorlog.txt", binfo->filename);
-        ret = system(cmd);
+        if (! binfo->append_db) {
+            lprintf("\ninitialize\n");
+            sprintf(cmd, "rm -rf %s* 2> errorlog.txt", binfo->filename);
+            ret = system(cmd);
+        } else {
+            lprintf("\nappend to DB\n");
+        }
 
         // create directory if doesn't exist
         str = _get_dirname(binfo->filename, bodybuf);
@@ -3048,8 +3053,9 @@ struct bench_info get_benchinfo(char* bench_config_filename)
 int main(int argc, char **argv){
     int opt;
     int initialize = 1;
+    int append_db = 0;
     char config_filename[256];
-    const char *short_opt = "hef:";
+    const char *short_opt = "heaf:";
     char filename[256];
     struct bench_info binfo;
     struct timeval gap;
@@ -3063,6 +3069,7 @@ int main(int argc, char **argv){
     struct option   long_opt[] =
     {
         {"database",      no_argument,       NULL, 'e'},
+        {"append",        no_argument,       NULL, 'a'},
         {"help",          no_argument,       NULL, 'h'},
         {"file",          optional_argument, NULL, 'f'},
         {NULL,            0,                 NULL, 0  }
@@ -3085,10 +3092,16 @@ int main(int argc, char **argv){
                 printf("Using existing DB file\n");
                 initialize = 0;
                 break;
+            
+            case 'a':
+                printf("Append population to existing DB file\n");
+                append_db = 1;
+                break;
 
             case 'h':
                 printf("Usage: %s [OPTIONS]\n", argv[0]);
                 printf("  -f file                   file\n");
+                printf("  -a append                 population to existing database file\n");
                 printf("  -e, --existing            use existing database file\n");
                 printf("  -h, --help                print this help and exit\n");
                 printf("\n");
@@ -3131,6 +3144,7 @@ int main(int argc, char **argv){
     }
 
     binfo.initialize = initialize;
+    binfo.append_db = append_db;
 
     _print_benchinfo(&binfo);
     do_bench(&binfo);
