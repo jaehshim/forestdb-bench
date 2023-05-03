@@ -1,5 +1,21 @@
 #!/bin/bash
 
+TARGET="rocksdb"
+#TARGET="wiredtiger"
+
+if [ "$TARGET" = "rocksdb" ]
+then
+	LIBRARY_PATH="/home/$USER/testbed/rocksdb"
+	BENCH_PATH="/home/$USER/testbed/forestdb-bench/rocksdb_build/rocksdb_bench"
+elif [ "$TARGET" = "wiredtiger" ]
+then
+	LIBRARY_PATH="/home/$USER/testbed/wiredtiger/build"
+	BENCH_PATH="/home/$USER/testbed/forestdb-bench/wt_build/wt_bench"
+else
+	exit
+fi
+
+
 MNT="/mnt/nvme"
 DEV="nvme0n1"
 
@@ -15,6 +31,8 @@ duration=180
 cache_size=10240
 bloom_bits=0
 batch_dist="uniform"
+
+delete_flag="false"
 
 function do_init() {
 	echo "drop cache & sync & sleep"
@@ -37,7 +55,5 @@ function do_init() {
 
 do_init
 
-python3 gen_bench_config.py $ndocs $nops $duration $klen $vlen $cache_size $bloom_bits $ratio $batch_dist < config.ini > my.ini
-
-sudo LD_LIBRARY_PATH=/home/$USER/testbed/rocksdb ./rocksdb_bench -f my.ini
-#sudo LD_LIBRARY_PATH=/home/$USER/testbed/wiredtiger/build ./wt_bench -f my.ini
+python3 gen_bench_config.py $ndocs $nops $duration $klen $vlen $cache_size $bloom_bits $ratio $batch_dist $delete_flag < config.ini > my.ini
+sudo LD_LIBRARY_PATH=$LIBRARY_PATH $BENCH_PATH -f my.ini

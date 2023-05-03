@@ -35,6 +35,9 @@ def main():
 
 			if entry[0] == "batch_distribution":
 				entry[2] = str(batch)
+			
+			if entry[0] == "delete":
+				entry[2] = str(delete)
 
 
 		for i in entry:
@@ -60,6 +63,6 @@ else:
 	bf_bits = argv[7]
 	ratio = argv[8]
 	batch = argv[9]
-
+	delete = argv[10]
 
 	main()
