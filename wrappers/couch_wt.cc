@@ -341,6 +341,24 @@ couchstore_error_t couchstore_open_document(Db *db,
 }
 
 LIBCOUCHSTORE_API
+couchstore_error_t couchstore_delete_document(Db *db,
+					      const void *id,
+					      size_t idlen,
+					      couchstore_open_options options)
+{
+    int ret;
+
+    db->cursor->set_key(db->cursor, id);
+    ret = db->cursor->remove(db->cursor);
+    if (ret) {
+        printf("ERR %s\n", wiredtiger_strerror(ret));
+    }
+    assert(ret == 0);
+
+    return COUCHSTORE_SUCCESS;
+}
+
+LIBCOUCHSTORE_API
 couchstore_error_t couchstore_walk_id_tree(Db *db,
                                            const sized_buf* startDocID,
                                            couchstore_docinfos_options options,

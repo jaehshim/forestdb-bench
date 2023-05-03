@@ -121,6 +121,9 @@ struct bench_info {
 
     // synchronous write
     uint8_t sync_write;
+
+    // delete flag
+    uint8_t delete_write;
 };
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -390,7 +393,7 @@ static void _get_file_range(int t_idx, int num_threads, int num_files,
 
 void * pop_thread(void *voidargs)
 {
-    size_t i, k, c, n;
+    size_t i, k, c, n, j;
     uint64_t counter;
     struct pop_thread_args *args = (struct pop_thread_args *)voidargs;
     struct bench_info *binfo = args->binfo;
@@ -421,7 +424,13 @@ void * pop_thread(void *voidargs)
             *(args->counter) += counter;
             spin_unlock(args->lock);
 
-            couchstore_save_documents(db, docs, infos, i-c, binfo->compression);
+            if (binfo->delete_write) {
+                for (j = 0; j < batchsize; ++j){
+                    couchstore_delete_document(db, docs[j]->id.buf, docs[j]->id.size, binfo->compression);
+                }
+            } else {
+                couchstore_save_documents(db, docs, infos, i-c, binfo->compression);
+            }
             if (binfo->pop_commit) {
                 couchstore_commit(db);
             }
@@ -2461,6 +2470,11 @@ void _print_benchinfo(struct bench_info *binfo)
     if (binfo->nfiles > 1) {
         lprintf("# files: %d\n", (int)binfo->nfiles);
     }
+	if (binfo->delete_write) {
+		lprintf("Population running as deletion\n");
+	} else {
+		lprintf("Population running as insertion\n");
+	}
 
     lprintf("# threads: ");
     lprintf("reader %d, iterator %d", (int)binfo->nreaders,
@@ -3015,6 +3029,10 @@ struct bench_info get_benchinfo(char* bench_config_filename)
     str = iniparser_getstring(cfg, (char*)"operation:write_type",
                                    (char*)"sync");
     binfo.sync_write = (str[0]=='s')?(1):(0);
+
+    str = iniparser_getstring(cfg, (char*)"operation:delete",
+                                   (char*)"false");
+    binfo.delete_write = (str[0]=='f')?(0):(1);
 
     binfo.compact_thres =
         iniparser_getint(cfg, (char*)"compaction:threshold", 30);

@@ -304,6 +304,23 @@ extern "C" {
                                                 couchstore_open_options options);
 
     /**
+     * Delete a doc from the db.
+     *
+     * The document should be freed with couchstore_free_document()
+     *
+     * @param db database to load document from
+     * @param id the identifier to load
+     * @param idlen the number of bytes in the id
+     * @param options See DECOMPRESS_DOC_BODIES
+     * @return COUCHSTORE_SUCCESS if found
+     */
+    LIBCOUCHSTORE_API
+    couchstore_error_t couchstore_delete_document(Db *db,
+                                                const void *id,
+                                                size_t idlen,
+                                                couchstore_open_options options);
+
+    /**
      * Retrieve a doc from the db, using a DocInfo.
      * The DocInfo must have been filled in with valid values by an API call such
      * as couchstore_docinfo_by_id().

@@ -106,6 +106,7 @@ couchstore_error_t couchstore_open_db_ex(const char *filename,
     ppdb->read_options = new rocksdb::ReadOptions();
     ppdb->write_options = new rocksdb::WriteOptions();
     ppdb->write_options->sync = true;
+	ppdb->write_options->disableWAL = false;
 
     return COUCHSTORE_SUCCESS;
 }
@@ -365,6 +366,23 @@ couchstore_error_t couchstore_open_document(Db *db,
     (*pDoc)->id.size = idlen;
     (*pDoc)->data.buf = (char*)value;
     (*pDoc)->data.size = valuelen;
+
+    return COUCHSTORE_SUCCESS;
+}
+
+LIBCOUCHSTORE_API
+couchstore_error_t couchstore_delete_document(Db *db,
+					      const void *id,
+					      size_t idlen,
+					      couchstore_open_options options)
+{
+    rocksdb::Status status;
+
+    status = db->db->Delete(*db->write_options, rocksdb::Slice((char*)id, idlen));
+    if (! status.ok()) {
+        printf("ERR %s\n", status.ToString().c_str());
+    }
+    assert(status.ok());
 
     return COUCHSTORE_SUCCESS;
 }
