@@ -36,5 +36,21 @@ do
 	done
 done
 
+## YCSB E ##
+
+#sudo rm logs/*
+#
+#OP=5
+#DIST="uniform"
+#echo $OP $DIST
+#
+#dir=$DIST"_"$OP"-scan-rocksdb"
+#mkdir $dir
+#
+#./scan_eval.sh $npop $nops $klen $vlen $cache_size $bloom_bits $OP $DIST
+#
+#sudo cp logs/* $dir
+#cp my.ini $dir
+
 source ~/pushover.sh
 push_to_mobile "linux_notification" "driver $dir done! $HOSTNAME @ $(date)"
