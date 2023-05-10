@@ -1,13 +1,13 @@
 #!/bin/bash
 
 npop=10000000
-nops=2000000
+nops=10000000
 
-klen=100
+klen=16
 vlen=4096
 sum=`expr $klen + $vlen`
 
-cache_size=10240 # MB
+cache_size=8192 # MB
 bloom_bits=10
 
 #write_ratio=0
@@ -33,6 +33,7 @@ do
 		sleep 120
 	
 		sudo cp logs/* $dir
+		cp my.ini $dir
 	done
 done
 
