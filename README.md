@@ -5,7 +5,10 @@ ForestDB-Benchmark is a benchmark program for embedded key-value storage engines
 How to Build
 ----
 Please refer to [INSTALL.MD](https://github.com/couchbaselabs/ForestDB-Benchmark/blob/master/INSTALL.md)
-
+```
+cmake -DCMAKE_INCLUDE_PATH=/path/rocksdb/include -DCMAKE_LIBRARY_PATH=/path/rocksdb ../
+cmake -DCMAKE_INCLUDE_PATH=/path/wiredtiger/build/include -DCMAKE_LIBRARY_PATH=/path/wiredtiger/build ../
+```
 
 How to Use
 ----
