@@ -333,6 +333,25 @@ couchstore_error_t couchstore_open_document(Db *db,
 }
 
 LIBCOUCHSTORE_API
+couchstore_error_t couchstore_delete_document(Db *db,
+                                            const void *id,
+                                            size_t idlen,
+                                            couchstore_open_options options)
+{
+    char *err = NULL;
+
+    leveldb_delete(db->db, db->write_options, (char*)id, idlen, &err);
+    if (err) {
+        printf("ERR %s\n", err);
+    }
+    assert(err == NULL);
+
+    return COUCHSTORE_SUCCESS;
+}
+
+
+
+LIBCOUCHSTORE_API
 couchstore_error_t couchstore_walk_id_tree(Db *db,
                                            const sized_buf* startDocID,
                                            couchstore_docinfos_options options,
