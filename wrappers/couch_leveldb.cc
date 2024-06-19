@@ -71,6 +71,7 @@ couchstore_error_t couchstore_open_db_ex(const char *filename,
     leveldb_options_set_create_if_missing(ppdb->options, 1);
     leveldb_options_set_compression(ppdb->options, compression);
     leveldb_options_set_write_buffer_size(ppdb->options, wbs_size);
+    leveldb_options_set_max_file_size(ppdb->options, wbs_size);
     if (bloom_bits_per_key) {
         // set bloom filter
         bloom = leveldb_filterpolicy_create_bloom(bloom_bits_per_key);
@@ -82,12 +83,11 @@ couchstore_error_t couchstore_open_db_ex(const char *filename,
                                   leveldb_cache_create_lru((uint64_t)cache_size));
     }
 
-    leveldb_options_set_max_open_files(ppdb->options, 1000);
     ppdb->db = leveldb_open(ppdb->options, ppdb->filename, &err);
 
     ppdb->read_options = leveldb_readoptions_create();
     ppdb->write_options = leveldb_writeoptions_create();
-    leveldb_writeoptions_set_sync(ppdb->write_options, 1);
+    // leveldb_writeoptions_set_sync(ppdb->write_options, 1);
 
     return COUCHSTORE_SUCCESS;
 }
