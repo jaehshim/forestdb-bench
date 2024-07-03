@@ -39,6 +39,9 @@ def main():
 			if entry[0] == "delete":
 				entry[2] = str(delete)
 
+			if entry[0] == "csd_offload":
+				entry[2] = str(offload)
+
 
 		for i in entry:
 			print(i,end=" ")
@@ -64,5 +67,6 @@ else:
 	ratio = argv[8]
 	batch = argv[9]
 	delete = argv[10]
+	offload = argv[11]
 
 	main()
