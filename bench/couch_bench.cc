@@ -124,6 +124,9 @@ struct bench_info {
 
     // delete flag
     uint8_t delete_write;
+
+    // csd flag
+    uint8_t csd_offload;
 };
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -1523,6 +1526,9 @@ couchstore_error_t couchstore_set_compaction_style(int style);
 couchstore_error_t couchstore_set_compression(int opt);
 couchstore_error_t couchstore_set_split_pct(int pct);
 couchstore_error_t couchstore_set_page_size(size_t leaf_pg_size, size_t int_pg_size);
+#if defined(__LEVEL_BENCH)
+couchstore_error_t couchstore_set_csd_offload(uint8_t opt);
+#endif
 
 static int _does_file_exist(char *filename) {
     struct stat st;
@@ -1720,6 +1726,9 @@ void do_bench(struct bench_info *binfo)
     // WiredTiger: set split_pct and page size parameters
     couchstore_set_split_pct(binfo->split_pct);
     couchstore_set_page_size(binfo->leaf_pg_size, binfo->int_pg_size);
+#endif
+#if defined(__LEVEL_BENCH)
+    couchstore_set_csd_offload(binfo->csd_offload);
 #endif
 
 
@@ -3033,6 +3042,10 @@ struct bench_info get_benchinfo(char* bench_config_filename)
     str = iniparser_getstring(cfg, (char*)"operation:delete",
                                    (char*)"false");
     binfo.delete_write = (str[0]=='f')?(0):(1);
+
+    str = iniparser_getstring(cfg, (char*)"operation:csd_offload",
+                                   (char*)"false");
+    binfo.csd_offload = (str[0]=='f')?(0):(1);
 
     binfo.compact_thres =
         iniparser_getint(cfg, (char*)"compaction:threshold", 30);

@@ -23,6 +23,7 @@ static uint64_t cache_size = 0;
 static uint64_t wbs_size = 4*1024*1024;
 static int bloom_bits_per_key = 0;
 static int compression = 0;
+uint8_t csd_offload = false;
 
 couchstore_error_t couchstore_set_cache(uint64_t size)
 {
@@ -39,6 +40,10 @@ couchstore_error_t couchstore_set_bloom(int bits_per_key) {
 }
 couchstore_error_t couchstore_set_compression(int opt) {
     compression = opt;
+    return COUCHSTORE_SUCCESS;
+}
+couchstore_error_t couchstore_set_csd_offload(uint8_t v) {
+    csd_offload = v;
     return COUCHSTORE_SUCCESS;
 }
 
@@ -83,11 +88,14 @@ couchstore_error_t couchstore_open_db_ex(const char *filename,
                                   leveldb_cache_create_lru((uint64_t)cache_size));
     }
 
+    leveldb_options_set_csd_offload(ppdb->options, csd_offload);
+
     ppdb->db = leveldb_open(ppdb->options, ppdb->filename, &err);
 
     ppdb->read_options = leveldb_readoptions_create();
     ppdb->write_options = leveldb_writeoptions_create();
     // leveldb_writeoptions_set_sync(ppdb->write_options, 1);
+
 
     return COUCHSTORE_SUCCESS;
 }
